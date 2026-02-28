@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Demo - Repository Analysis</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        
+        .chat-container {
+            background: #2d2d2d;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .chat-message {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #404040;
+            border-radius: 8px;
+        }
+        
+        .user-message {
+            background: #1e40af;
+            margin-left: 60px;
+        }
+        
+        .ai-message {
+            background: #059669;
+            margin-right: 60px;
+        }
+        
+        .repo-description {
+            background: #374151;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            border-left: 4px solid #10b981;
+        }
+        
+        .action-button {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 8px 8px 8px 0;
+            transition: background 0.2s;
+        }
+        
+        .action-button:hover {
+            background: #059669;
+        }
+        
+        .secondary-button {
+            background: #374151;
+        }
+        
+        .secondary-button:hover {
+            background: #4b5563;
+        }
+        
+        pre {
+            background: #1f2937;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Chat Demo - Repository Analysis to UML</h1>
+    
+    <div class="chat-container">
+        <div class="chat-message user-message">
+            <strong>User:</strong> Can you analyze this Node.js repository and create a UML diagram?
+        </div>
+        
+        <div class="chat-message ai-message">
+            <strong>AI Assistant:</strong> I've analyzed your repository! Here's what I found:
+            
+            <div class="repo-description">
+                <strong>Repository Analysis:</strong><br>
+                This is a modern Express.js web application with a microservices architecture. It includes user authentication, order management, payment processing, and inventory tracking. The application uses MongoDB for data persistence, Redis for caching, and implements JWT-based authentication. Key components include User Service, Order Service, Payment Gateway integration, and an Admin Dashboard. The architecture follows RESTful API design patterns with middleware for logging, error handling, and rate limiting.
+            </div>
+            
+            I can create a detailed UML diagram for you! Click the button below to view the interactive UML diagram generator:
+            
+            <div style="margin-top: 16px;">
+                <a href="#" class="action-button" onclick="openUMLGenerator()">
+                    🎯 Generate UML Diagram
+                </a>
+                <a href="#" class="action-button secondary-button" onclick="showRawDescription()">
+                    📝 View Raw Description
+                </a>
+            </div>
+            
+            <div id="raw-description" style="display: none; margin-top: 16px;">
+                <strong>Raw Description (for manual copy):</strong>
+                <pre id="description-text"></pre>
+                <button onclick="copyToClipboard()" class="action-button" style="font-size: 12px; padding: 8px 16px;">
+                    Copy Description
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="repo-description">
+        <h3>How This Integration Works:</h3>
+        <ol>
+            <li><strong>AI Chat Analysis:</strong> The AI analyzes your repository structure, dependencies, and code patterns</li>
+            <li><strong>Description Generation:</strong> Creates a comprehensive description of the architecture and components</li>
+            <li><strong>UML Generation Link:</strong> Provides a direct link to the UML generator with the description pre-filled</li>
+            <li><strong>Interactive Diagram:</strong> Uses OpenRouter API to generate a Mermaid UML diagram</li>
+        </ol>
+    </div>
+
+    <script>
+        const repositoryDescription = "This is a modern Express.js web application with a microservices architecture. It includes user authentication, order management, payment processing, and inventory tracking. The application uses MongoDB for data persistence, Redis for caching, and implements JWT-based authentication. Key components include User Service, Order Service, Payment Gateway integration, and an Admin Dashboard. The architecture follows RESTful API design patterns with middleware for logging, error handling, and rate limiting. The User Service handles registration, login, profile management, and role-based access control. The Order Service manages order creation, status updates, and order history. The Payment Gateway integrates with Stripe for secure payment processing. The Admin Dashboard provides analytics, user management, and system monitoring capabilities.";
+        
+        function openUMLGenerator() {
+            const encodedDescription = encodeURIComponent(repositoryDescription);
+            const umlUrl = `http://localhost:3000/collaborative-tools?description=${encodedDescription}`;
+            window.open(umlUrl, '_blank');
+        }
+        
+        function showRawDescription() {
+            const element = document.getElementById('raw-description');
+            const textElement = document.getElementById('description-text');
+            textElement.textContent = repositoryDescription;
+            element.style.display = element.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        function copyToClipboard() {
+            navigator.clipboard.writeText(repositoryDescription).then(() => {
+                alert('Description copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>

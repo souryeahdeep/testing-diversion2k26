@@ -1,0 +1,100 @@
+import { HoverBorderGradient } from "../../../components/ui/hover-border-gradient";
+
+const AddTaskDialog = ({
+  isTaskDialogOpen,
+  handleCloseTaskDialog,
+  handleAddTask,
+  newTaskTitle,
+  setNewTaskTitle,
+  newTaskAssignee,
+  setNewTaskAssignee,
+  newTaskPriority,
+  setNewTaskPriority,
+  newTaskStatus,
+  setNewTaskStatus,
+  collaborators,
+}) => {
+  if (!isTaskDialogOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-zinc-900 border border-white/10 rounded-lg p-6 w-96 max-w-md mx-4">
+        <h3 className="text-lg font-semibold mb-4">Add New Task</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Task Title
+            </label>
+            <input
+              type="text"
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+              placeholder="Enter task title"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-foreground/50 focus:border-emerald-400 focus:outline-none focus:ring-0"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Assign To</label>
+            <select
+              value={newTaskAssignee}
+              onChange={(e) => setNewTaskAssignee(e.target.value)}
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none focus:ring-0"
+            >
+              <option value="">Select a member</option>
+              {collaborators.map((c) => (
+                <option key={c.id} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Priority</label>
+            <select
+              value={newTaskPriority}
+              onChange={(e) => setNewTaskPriority(e.target.value)}
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none focus:ring-0"
+            >
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Status</label>
+            <select
+              value={newTaskStatus}
+              onChange={(e) => setNewTaskStatus(e.target.value)}
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none focus:ring-0"
+            >
+              <option value="To Do">To Do</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex gap-3 mt-6">
+          <HoverBorderGradient
+            as="button"
+            onClick={handleAddTask}
+            disabled={!newTaskTitle || !newTaskAssignee}
+            containerClassName="flex-1"
+            className="bg-emerald-500 text-black text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Add Task
+          </HoverBorderGradient>
+          <HoverBorderGradient
+            as="button"
+            onClick={handleCloseTaskDialog}
+            containerClassName="flex-1"
+            className="bg-zinc-800 text-zinc-100 text-sm font-medium"
+          >
+            Cancel
+          </HoverBorderGradient>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AddTaskDialog;
