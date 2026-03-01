@@ -2,17 +2,26 @@
 import { useState } from "react";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
 
-const IssueManager = ({ onCreateIssue }) => {
-  const [repoVisibility, setRepoVisibility] = useState("public");
+const IssueManager = ({ onCreateIssue, onPushToRepo }) => {
+  const [activeView, setActiveView] = useState("issue"); // "issue" or "git"
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [repoName, setRepoName] = useState("");
   const [assignee, setAssignee] = useState("");
   const [labels, setLabels] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [createdIssues, setCreatedIssues] = useState([]);
+
+  // Repository names
+  const issueRepoName = "CollegeSaathi"; // For Issue Manager
+  const gitRepoName = "testing-diversion2k26"; // For Git Init
+  const repoOwner = "souryeahdeep";
+  const [commitMessage, setCommitMessage] = useState("");
+  const [branchName, setBranchName] = useState("main");
+  const [isPushing, setIsPushing] = useState(false);
+  const [pushError, setPushError] = useState("");
+  const [pushSuccess, setPushSuccess] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,10 +31,10 @@ const IssueManager = ({ onCreateIssue }) => {
 
     try {
       const payload = {
-        repoVisibility,
+        platform: "github",
         title,
         description,
-        repoName,
+        repoName: issueRepoName,
         assignee: assignee || undefined,
         labels: labels ? labels.split(",").map(l => l.trim()) : undefined,
       };
@@ -52,9 +61,8 @@ const IssueManager = ({ onCreateIssue }) => {
       setAssignee("");
       setLabels("");
 
-      const repoType = repoVisibility === "private" ? "private" : "public";
       setSuccessMessage(
-        `✓ Issue #${issue.number} created successfully in ${repoType} repository!`
+        `✓ Issue #${issue.number} created successfully!`
       );
 
       setTimeout(() => setSuccessMessage(""), 5000);
@@ -65,53 +73,63 @@ const IssueManager = ({ onCreateIssue }) => {
     }
   };
 
+  const handlePush = async (e) => {
+    e.preventDefault();
+    setPushError("");
+    setPushSuccess("");
+    if (!commitMessage) {
+      setPushError("Commit message is required");
+      return;
+    }
+    setIsPushing(true);
+    try {
+      const result = await onPushToRepo?.({ commitMessage, branchName });
+      if (!result?.ok) {
+        throw new Error(result?.error || "Push operation failed");
+      }
+      setPushSuccess(
+        `✓ Successfully pushed ${result.data?.filesCount || ""} files to ${gitRepoName}!`
+      );
+      setCommitMessage("");
+      setTimeout(() => setPushSuccess(""), 5000);
+    } catch (error) {
+      setPushError(error.message || "Unable to push to repository");
+    } finally {
+      setIsPushing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold">Issue Manager</h3>
-
-      {/* Token Requirements Info */}
-      <div className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-4 space-y-2">
-        <p className="text-sm font-semibold text-blue-300">🔑 GitHub Token Requirements</p>
-        <div className="text-xs text-blue-200 space-y-1">
-          <p><strong>Public Repositories:</strong> Token with <code className="bg-black/30 px-1 rounded">public_repo</code> scope</p>
-          <p><strong>Private Repositories:</strong> Token with full <code className="bg-black/30 px-1 rounded">repo</code> scope</p>
-        </div>
+      {/* Toggle Buttons */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setActiveView("issue")}
+          className={`flex-1 text-sm font-semibold py-3 px-4 rounded-lg transition-all duration-200 ${
+            activeView === "issue"
+              ? "bg-blue-600 text-white"
+              : "bg-white/5 border border-white/10 text-foreground/60 hover:bg-white/10"
+          }`}
+        >
+          Issue Manager
+        </button>
+        <button
+          onClick={() => setActiveView("git")}
+          className={`flex-1 text-sm font-semibold py-3 px-4 rounded-lg transition-all duration-200 ${
+            activeView === "git"
+              ? "bg-green-600 text-white"
+              : "bg-white/5 border border-white/10 text-foreground/60 hover:bg-white/10"
+          }`}
+        >
+          Git Init & Push
+        </button>
       </div>
 
+      {/* Issue Manager View */}
+      {activeView === "issue" && (
+        <>
+      
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-2">Repository Visibility</label>
-          <select
-            value={repoVisibility}
-            onChange={(e) => setRepoVisibility(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none focus:ring-0"
-          >
-            <option className="bg-black" value="public">
-              Public Repository
-            </option>
-            <option className="bg-black" value="private">
-              Private Repository
-            </option>
-          </select>
-          {repoVisibility === "private" && (
-            <div className="mt-2 rounded-md border border-yellow-500/30 bg-yellow-500/10 p-2 text-xs text-yellow-300">
-              ⚠️ Private repos require token with full <code className="bg-black/30 px-1 rounded">repo</code> scope
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Repository Name</label>
-          <input
-            type="text"
-            value={repoName}
-            onChange={(e) => setRepoName(e.target.value)}
-            placeholder="e.g. my-repo"
-            required
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-foreground/50 focus:border-emerald-400 focus:outline-none focus:ring-0"
-          />
-        </div>
-
         <div>
           <label className="block text-sm font-medium mb-2">Issue Title</label>
           <input
@@ -211,6 +229,74 @@ const IssueManager = ({ onCreateIssue }) => {
             </div>
           ))}
         </div>
+      )}
+      </>
+      )}
+
+      {/* Git Init & Push View */}
+      {activeView === "git" && (
+        <>
+        <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 space-y-2">
+          <p className="text-sm font-semibold text-emerald-300">Target Repository</p>
+          <div className="text-xs text-emerald-200">
+            <p className="font-medium">
+              <a
+                href={`https://github.com/${repoOwner}/${gitRepoName}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                {repoOwner}/{gitRepoName}
+              </a>
+            </p>
+            <p className="text-emerald-300/70 mt-1">All workspace files will be pushed automatically</p>
+          </div>
+        </div>
+
+        <form onSubmit={handlePush} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Branch Name</label>
+            <input
+              type="text"
+              value={branchName}
+              onChange={(e) => setBranchName(e.target.value)}
+              placeholder="main"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-foreground/50 focus:border-emerald-400 focus:outline-none focus:ring-0"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Commit Message</label>
+            <textarea
+              value={commitMessage}
+              onChange={(e) => setCommitMessage(e.target.value)}
+              placeholder="Initial commit"
+              rows="3"
+              required
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-foreground/50 focus:border-emerald-400 focus:outline-none focus:ring-0"
+            ></textarea>
+          </div>
+
+          {pushSuccess && (
+            <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-2 text-xs text-emerald-300">
+              {pushSuccess}
+            </div>
+          )}
+          {pushError && (
+            <div className="rounded-md border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-300">
+              {pushError}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isPushing}
+            className="w-full bg-gradient-to-r from-green-900 to-green-700 hover:from-green-900 hover:to-green-900 text-white text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 rounded-lg px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPushing ? "Pushing to GitHub..." : "Push to Repository"}
+          </button>
+        </form>
+        </>
       )}
     </div>
   );

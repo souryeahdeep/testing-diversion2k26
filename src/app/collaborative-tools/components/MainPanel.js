@@ -46,28 +46,6 @@ const MainPanel = ({ activeTab, setActiveTab, children }) => {
               </HoverBorderGradient>
               <HoverBorderGradient
                 as="button"
-                onClick={() => setActiveTab("create-meet")}
-                className={`text-sm font-medium ${
-                  activeTab === "create-meet"
-                    ? "bg-emerald-500 text-black"
-                    : "bg-zinc-800 text-foreground/60"
-                }`}
-              >
-                Create Meet
-              </HoverBorderGradient>
-              <HoverBorderGradient
-                as="button"
-                onClick={() => setActiveTab("git-init")}
-                className={`text-sm font-medium ${
-                  activeTab === "git-init"
-                    ? "bg-emerald-500 text-black"
-                    : "bg-zinc-800 text-foreground/60"
-                }`}
-              >
-                Git Init
-              </HoverBorderGradient>
-              <HoverBorderGradient
-                as="button"
                 onClick={() => setActiveTab("issue-manager")}
                 className={`text-sm font-medium ${
                   activeTab === "issue-manager"

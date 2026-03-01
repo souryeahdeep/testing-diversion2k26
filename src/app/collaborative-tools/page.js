@@ -9,7 +9,6 @@ import AddTeamMemberDialog from "./components/AddTeamMemberDialog";
 import ActivityFeed from "./components/ActivityFeed";
 import TaskBoard from "./components/TaskBoard";
 import UMLDiagramGenerator from "./components/UMLDiagramGenerator";
-import CreateMeet from "./components/CreateMeet";
 import GitInit from "./components/GitInit";
 import IssueManager from "./components/IssueManager";
 
@@ -116,6 +115,8 @@ export default function CollaborativeToolsPage() {
   const [newTaskAssignee, setNewTaskAssignee] = useState("");
   const [newTaskPriority, setNewTaskPriority] = useState("Medium");
   const [newTaskStatus, setNewTaskStatus] = useState("To Do");
+  const [newTaskDescription, setNewTaskDescription] = useState("");
+  const [newTaskDeadline, setNewTaskDeadline] = useState("");
 
   // UML Diagram Generator state
   const [repositoryDescription, setRepositoryDescription] = useState("");
@@ -359,8 +360,31 @@ export default function CollaborativeToolsPage() {
       // Log activity
       addActivity(memberName, "joined the team as", role);
 
+      // Send welcome email notification
+      try {
+        await fetch("/api/notify/email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            type: "team_welcome",
+            to: memberEmail,
+            memberName: memberName,
+            role: role,
+            githubId: memberGithubId,
+            addedBy: "Project Manager", // You can customize this
+            projectName: "Your Project", // You can customize this
+          }),
+        });
+        console.log(`Welcome email sent to ${memberEmail}`);
+      } catch (emailError) {
+        console.error("Failed to send welcome email:", emailError);
+        // Don't block member addition if email fails
+      }
+
       // Show success notification
-      alert(`✅ Team Member Added Successfully!\n\nName: ${memberName}\nGitHub ID: ${memberGithubId}\nEmail: ${memberEmail}\nRole: ${role}\n\n📢 Notification sent to Slack #social channel!`);
+      alert(`✅ Team Member Added Successfully!\n\nName: ${memberName}\nGitHub ID: ${memberGithubId}\nEmail: ${memberEmail}\nRole: ${role}\n\n📧 Welcome email sent to ${memberEmail}!\n📢 Notification sent to Slack #social channel!`);
 
       // Reset form and close dialog
       setMemberName("");
@@ -384,7 +408,7 @@ export default function CollaborativeToolsPage() {
     setIsDialogOpen(false);
   };
 
-  const handleAddTask = () => {
+  const handleAddTask = async () => {
     if (!newTaskTitle || !newTaskAssignee) return;
 
     const newTask = {
@@ -393,6 +417,8 @@ export default function CollaborativeToolsPage() {
       assignee: newTaskAssignee,
       status: newTaskStatus,
       priority: newTaskPriority,
+      description: newTaskDescription,
+      deadline: newTaskDeadline,
     };
 
     setTasksState([...tasksState, newTask]);
@@ -400,11 +426,42 @@ export default function CollaborativeToolsPage() {
     // Log activity
     addActivity(newTaskAssignee, "was assigned task", `"${newTaskTitle}"`);
 
+    // Send email notification
+    try {
+      const assigneeInfo = collaboratorsList.find(c => c.name === newTaskAssignee);
+      
+      if (assigneeInfo && assigneeInfo.email) {
+        await fetch("/api/notify/email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            type: "task_assignment",
+            to: assigneeInfo.email,
+            memberName: assigneeInfo.name,
+            taskTitle: newTaskTitle,
+            taskDescription: newTaskDescription,
+            priority: newTaskPriority,
+            status: newTaskStatus,
+            deadline: newTaskDeadline,
+            assignedBy: "Project Manager", // You can customize this
+          }),
+        });
+        console.log(`Email notification sent to ${assigneeInfo.email}`);
+      }
+    } catch (error) {
+      console.error("Failed to send email notification:", error);
+      // Don't block task creation if email fails
+    }
+
     // Reset form and close dialog
     setNewTaskTitle("");
     setNewTaskAssignee("");
     setNewTaskPriority("Medium");
     setNewTaskStatus("To Do");
+    setNewTaskDescription("");
+    setNewTaskDeadline("");
     setIsTaskDialogOpen(false);
   };
 
@@ -413,6 +470,8 @@ export default function CollaborativeToolsPage() {
     setNewTaskAssignee("");
     setNewTaskPriority("Medium");
     setNewTaskStatus("To Do");
+    setNewTaskDescription("");
+    setNewTaskDeadline("");
     setIsTaskDialogOpen(false);
   };
 
@@ -573,7 +632,11 @@ export default function CollaborativeToolsPage() {
       <MainPanel activeTab={activeTab} setActiveTab={setActiveTab}>
         <div className="flex-1 p-8 overflow-y-auto">
           {activeTab === "activity" && (
-            <ActivityFeed activityFeedItems={activityFeed} />
+            <ActivityFeed 
+              activityFeedItems={activityFeed}
+              handleCreateMeeting={handleCreateMeeting}
+              handleScheduleMeeting={handleScheduleMeeting}
+            />
           )}
           {activeTab === "tasks" && (
             <TaskBoard
@@ -606,17 +669,8 @@ export default function CollaborativeToolsPage() {
               aiModel={aiModel}
             />
           )}
-          {activeTab === "create-meet" && (
-            <CreateMeet 
-              handleCreateMeeting={handleCreateMeeting}
-              handleScheduleMeeting={handleScheduleMeeting}
-            />
-          )}
-          {activeTab === "git-init" && (
-            <GitInit onPushToRepo={handlePushToRepo} />
-          )}
           {activeTab === "issue-manager" && (
-            <IssueManager onCreateIssue={handleCreateIssue} />
+            <IssueManager onCreateIssue={handleCreateIssue} onPushToRepo={handlePushToRepo} />
           )}
         </div>
       </MainPanel>
@@ -632,6 +686,10 @@ export default function CollaborativeToolsPage() {
         setNewTaskPriority={setNewTaskPriority}
         newTaskStatus={newTaskStatus}
         setNewTaskStatus={setNewTaskStatus}
+        newTaskDescription={newTaskDescription}
+        setNewTaskDescription={setNewTaskDescription}
+        newTaskDeadline={newTaskDeadline}
+        setNewTaskDeadline={setNewTaskDeadline}
         collaborators={collaboratorsList}
       />
       <AddTeamMemberDialog

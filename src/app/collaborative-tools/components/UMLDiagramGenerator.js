@@ -30,34 +30,7 @@ export default function UMLDiagramGenerator({
         </div>
       )}
 
-      {/* Repository Description Preview (read-only) */}
-      {repositoryDescription ? (
-        <div className="space-y-2 rounded-lg border border-white/10 bg-white/5 p-4">
-          <p className="text-sm font-medium text-emerald-300">
-            Repository description provided via redirect
-          </p>
-          <p className="text-sm text-foreground/80 whitespace-pre-wrap">
-            {repositoryDescription.length > 500
-              ? `${repositoryDescription.slice(0, 500)}...`
-              : repositoryDescription}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
-          <p className="text-sm text-red-400">
-            No repository description received. Paste a description below or
-            start from the upload/submit flow.
-          </p>
-          <textarea
-            value={repositoryDescription}
-            onChange={(e) => setRepositoryDescription?.(e.target.value)}
-            placeholder="Paste repository description to enable UML generation"
-            rows="4"
-            className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm placeholder:text-foreground/50 focus:border-emerald-400 focus:outline-none focus:ring-0"
-          />
-        </div>
-      )}
-
+      
       {/* Generate Button */}
       <HoverBorderGradient
         as="button"
