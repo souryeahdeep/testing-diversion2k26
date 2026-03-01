@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { sendSlackWebhook } from "@/lib/slack/sendWebHook";
 
 // Binary file extensions to skip
 const BINARY_EXTENSIONS = new Set([
@@ -387,6 +388,23 @@ export async function POST(req) {
         { error: "Failed to update reference", details: errorBody },
         { status: refUpdateResponse.status }
       );
+    }
+
+    // Send Slack notification after successful push
+    try {
+      const slackMessage = `🚀 *Git Push Successful!*\n\n` +
+        `*Repository:* ${owner}/${repoName}\n` +
+        `*Branch:* ${branchName}\n` +
+        `*Commit:* ${commitMessage}\n` +
+        `*Files Pushed:* ${blobs.length} files\n` +
+        `*Commit SHA:* ${commitData.sha.substring(0, 7)}\n` +
+        `*View:* https://github.com/${owner}/${repoName}/commit/${commitData.sha}`;
+      
+      await sendSlackWebhook(slackMessage);
+      console.log("Slack notification sent successfully");
+    } catch (slackError) {
+      console.error("Failed to send Slack notification:", slackError);
+      // Don't fail the entire operation if Slack notification fails
     }
 
     return NextResponse.json({

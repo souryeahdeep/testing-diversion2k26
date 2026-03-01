@@ -475,6 +475,11 @@ export default function CollaborativeToolsPage() {
       return;
     }
 
+    if (collaboratorsList.length === 0) {
+      alert("Please add team members first before generating tasks.");
+      return;
+    }
+
     setIsGeneratingTasks(true);
     try {
       const response = await fetch("/api/generate-tasks", {
@@ -489,8 +494,36 @@ export default function CollaborativeToolsPage() {
         throw new Error(data.error || "Failed to generate tasks");
       }
 
-      // Add generated tasks to existing tasks
-      const newTasks = data.tasks.map((task, index) => ({
+      // Intelligently assign tasks to team members
+      const assignTasksToMembers = (tasks, members) => {
+        const tasksByPriority = { High: [], Medium: [], Low: [] };
+        
+        // Group tasks by priority
+        tasks.forEach(task => {
+          tasksByPriority[task.priority]?.push(task);
+        });
+
+        // Distribute tasks round-robin, starting with high priority
+        const assignedTasks = [];
+        let memberIndex = 0;
+
+        ['High', 'Medium', 'Low'].forEach(priority => {
+          tasksByPriority[priority].forEach(task => {
+            const assignedMember = members[memberIndex % members.length];
+            assignedTasks.push({
+              ...task,
+              assignee: assignedMember.name,
+            });
+            memberIndex++;
+          });
+        });
+
+        return assignedTasks;
+      };
+
+      // Add generated tasks with assignments
+      const tasksWithAssignments = assignTasksToMembers(data.tasks, collaboratorsList);
+      const newTasks = tasksWithAssignments.map((task, index) => ({
         ...task,
         id: tasksState.length + index + 1,
       }));
@@ -498,9 +531,9 @@ export default function CollaborativeToolsPage() {
       setTasksState([...tasksState, ...newTasks]);
 
       // Log activity
-      addActivity("AI Assistant", "generated", `${data.count} new tasks`);
+      addActivity("AI Assistant", "generated", `${data.count} new tasks and assigned them to team`);
 
-      alert(`✅ Successfully generated ${data.count} tasks using AI!`);
+      alert(`✅ Successfully generated ${data.count} tasks and assigned them to team members!`);
     } catch (error) {
       console.error("Failed to generate tasks:", error);
       alert(`Failed to generate tasks: ${error.message}`);

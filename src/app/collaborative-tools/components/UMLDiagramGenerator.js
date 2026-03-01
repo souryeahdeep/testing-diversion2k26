@@ -226,25 +226,28 @@ export default function UMLDiagramGenerator({
                 }}
               >
                 {aiInsights.split('\n').map((line, idx) => {
+                  // Remove asterisks from the line
+                  const cleanLine = line.replace(/\*/g, '');
+                  
                   // Style headers
-                  if (line.match(/^[📊🔄🏗️⚡🔍💡]/)) {
+                  if (cleanLine.match(/^[📊🔄🏗️⚡🔍💡]/)) {
                     return (
                       <div key={idx} className="font-bold text-base text-emerald-300 mt-4 mb-2">
-                        {line}
+                        {cleanLine}
                       </div>
                     );
                   }
                   // Style bullet points
-                  if (line.trim().startsWith('•')) {
+                  if (cleanLine.trim().startsWith('•')) {
                     return (
                       <div key={idx} className="pl-4 text-foreground/90">
-                        {line}
+                        {cleanLine}
                       </div>
                     );
                   }
                   // Regular lines
-                  return line.trim() ? (
-                    <div key={idx} className="text-foreground/90">{line}</div>
+                  return cleanLine.trim() ? (
+                    <div key={idx} className="text-foreground/90">{cleanLine}</div>
                   ) : (
                     <div key={idx} className="h-2"></div>
                   );

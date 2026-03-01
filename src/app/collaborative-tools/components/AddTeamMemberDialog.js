@@ -1,5 +1,3 @@
-import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
-
 const AddTeamMemberDialog = ({
   isDialogOpen,
   handleCloseDialog,
@@ -94,31 +92,30 @@ const AddTeamMemberDialog = ({
         </div>
 
         <div className="flex gap-3 mt-6">
-          <HoverBorderGradient
-            as="button"
+          <button
             onClick={handleAddMember}
             disabled={!memberName || !memberGithubId || !memberEmail || !role || isAddingMember}
-            containerClassName="flex-1"
-            className="bg-emerald-500 text-black text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-black text-emerald-400 text-sm font-medium px-6 py-2.5 rounded-full border-2 border-transparent disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300"
+            style={{
+              background: 'linear-gradient(black, black) padding-box, linear-gradient(90deg, #10b981, #14b8a6, #3b82f6) border-box'
+            }}
           >
             {isAddingMember ? (
               <span className="flex items-center justify-center gap-2">
-                <div className="animate-spin h-4 w-4 border-2 border-black border-t-transparent rounded-full"></div>
+                <div className="animate-spin h-4 w-4 border-2 border-emerald-400 border-t-transparent rounded-full"></div>
                 Adding Member...
               </span>
             ) : (
-              "Add Member"
+              "✓ Add Member"
             )}
-          </HoverBorderGradient>
-          <HoverBorderGradient
-            as="button"
+          </button>
+          <button
             onClick={handleCloseDialog}
             disabled={isAddingMember}
-            containerClassName="flex-1"
-            className="bg-zinc-800 text-zinc-100 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-zinc-800 text-zinc-300 text-sm font-medium px-6 py-2.5 rounded-full border-2 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Cancel
-          </HoverBorderGradient>
+            ✕ Cancel
+          </button>
         </div>
       </div>
     </div>

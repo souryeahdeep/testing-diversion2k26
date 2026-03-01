@@ -173,15 +173,18 @@ const IssueManager = ({ onCreateIssue }) => {
           </div>
         )}
 
-        <HoverBorderGradient
-          as="button"
-          type="submit"
-          disabled={isSubmitting}
-          containerClassName="w-full"
-          className="bg-emerald-500 text-black text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? "Creating Issue..." : "Create Issue"}
-        </HoverBorderGradient>
+        <div className="flex justify-center pt-2">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="relative bg-black text-emerald-400 text-base font-medium px-8 py-3 rounded-full flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-transparent bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-500 bg-clip-padding hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300"
+            style={{
+              background: 'linear-gradient(black, black) padding-box, linear-gradient(90deg, #10b981, #14b8a6, #3b82f6) border-box'
+            }}
+          >
+            {isSubmitting ? "Creating Issue..." : "Create Issue"}
+          </button>
+        </div>
       </form>
 
       {createdIssues.length > 0 && (

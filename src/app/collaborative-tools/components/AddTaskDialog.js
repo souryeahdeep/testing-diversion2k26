@@ -1,5 +1,3 @@
-import { HoverBorderGradient } from "../../../components/ui/hover-border-gradient";
-
 const AddTaskDialog = ({
   isTaskDialogOpen,
   handleCloseTaskDialog,
@@ -74,23 +72,22 @@ const AddTaskDialog = ({
           </div>
         </div>
         <div className="flex gap-3 mt-6">
-          <HoverBorderGradient
-            as="button"
+          <button
             onClick={handleAddTask}
             disabled={!newTaskTitle || !newTaskAssignee}
-            containerClassName="flex-1"
-            className="bg-emerald-500 text-black text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-black text-emerald-400 text-sm font-medium px-6 py-2.5 rounded-full border-2 border-transparent disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300"
+            style={{
+              background: 'linear-gradient(black, black) padding-box, linear-gradient(90deg, #10b981, #14b8a6, #3b82f6) border-box'
+            }}
           >
-            Add Task
-          </HoverBorderGradient>
-          <HoverBorderGradient
-            as="button"
+            ✓ Add Task
+          </button>
+          <button
             onClick={handleCloseTaskDialog}
-            containerClassName="flex-1"
-            className="bg-zinc-800 text-zinc-100 text-sm font-medium"
+            className="flex-1 bg-zinc-800 text-zinc-300 text-sm font-medium px-6 py-2.5 rounded-full border-2 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 transition-all duration-300"
           >
-            Cancel
-          </HoverBorderGradient>
+            ✕ Cancel
+          </button>
         </div>
       </div>
     </div>
