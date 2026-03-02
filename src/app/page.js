@@ -41,12 +41,6 @@ export default function Home() {
           </div>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <button className="rounded-full bg-green-500 px-8 py-3 text-sm font-semibold text-black transition hover:bg-green-400">
-              Get Started
-            </button>
-            <button className="rounded-full border border-white/15 px-8 py-3 text-sm font-semibold text-zinc-100 transition hover:border-green-500/40 hover:text-green-200">
-              View on GitHub
-            </button>
             <Link href="/collaborative-tools">
               <button className="rounded-full bg-green-600 px-8 py-3 text-sm font-semibold text-white transition hover:bg-green-500">
                 Collaborative tool
